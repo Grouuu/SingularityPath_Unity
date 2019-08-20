@@ -358,7 +358,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputs: {fileID: 498332059}
-  gravity: {fileID: 1344442314}
   player: {fileID: 1978891737}
   obstacles: {fileID: 2050935193}
 --- !u!1 &230260999
@@ -471,7 +470,6 @@ Transform:
   m_Children:
   - {fileID: 78424200}
   - {fileID: 498332058}
-  - {fileID: 1344442313}
   - {fileID: 1978891735}
   - {fileID: 2050935192}
   m_Father: {fileID: 0}
@@ -909,49 +907,6 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!1 &1344442312
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1344442313}
-  - component: {fileID: 1344442314}
-  m_Layer: 0
-  m_Name: Gravity
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1344442313
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1344442312}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 824346837}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1344442314
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1344442312}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1557e18131d3f3241a4e1385a0fe4671, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1427546837
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -969,7 +924,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400014, guid: 02dd6406ed1ebc248b2fafd0485e0de9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400014, guid: 02dd6406ed1ebc248b2fafd0485e0de9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1321,7 +1276,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 824346837}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1978891736
 MonoBehaviour:
@@ -1335,16 +1290,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ea49ff387697e14da83fd02aacde889, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerBody: {fileID: 1960682734}
   startVelocity: {x: 0, y: 0, z: 0}
-  startAngle: {x: 0, y: 0, z: 0, w: 1}
-  speedAcc: 0.5
-  speedDec: 0.5
-  speedMin: 0.5
-  speedMax: 15
+  speedAcc: 0.2
+  speedDec: 0.1
+  speedMax: 5
+  speedMin: 0.1
   angleSpeed: 1
-  angleInertiaDec: 8
   boostForce: 1
-  rb: {fileID: 0}
+  boostDuration: 2
 --- !u!114 &1978891737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1357,7 +1311,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 897e8801df574834eab402cdaebcc503, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1960682734}
 --- !u!114 &1978891738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1443,7 +1396,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 824346837}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2050935193
 MonoBehaviour:

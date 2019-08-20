@@ -4,15 +4,10 @@ using UnityEngine;
 
 public class ObstacleController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+	protected ObstacleBody[] obstacles;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+	public ObstacleBody[] GetObstacles()
+	{
+		return obstacles;
+	}
 }

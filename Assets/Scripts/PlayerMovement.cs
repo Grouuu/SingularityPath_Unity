@@ -4,115 +4,94 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-	[Tooltip("Started velocity")]
+	public Rigidbody playerBody;
 	public Vector3 startVelocity = Vector3.zero;
-	[Tooltip("Started angle")]
-	public Quaternion startAngle = Quaternion.identity;
-	public float speedAcc = 0.5f;
-	public float speedDec = 0.5f;
-	public float speedMax = 15f;
-	public float speedMin = 0.1f;
-	private bool lockSpeedMin = true;
+	public float speedAcc = 0.2f;
+	public float speedDec = 0.1f;
+	public float speedMax = 5f;
+	[Range(0.2f, 5.0f)] public float speedMin = 0.2f; // if < 0.2, trigger === Vector3.zero
 	public float angleSpeed = 1f;
-	public float angleInertiaDec = 8f;
-	public float gravityAngleMax = 0.1f;
-	public Vector3 boostForce = Vector3.zero;
+	public float boostForce = 2f;
 	public float boostDuration = 2f;
 
-	[HideInInspector] public Rigidbody rb;
+	protected Vector3 velocity;
+	protected Gravity gravity = new Gravity();
 
-	private Quaternion angle;
-	private Vector3 velocity;
-
-	private Quaternion angleInertia = Quaternion.identity;
 	private float boostTime = 0f;
+	private float speedCap;
+
+	public void ApplyConfig(PlayerMovement clone)
+	{
+		// TODO : observable system to update simulator if the config changed
+		// or externalize the parameters and applies on all instances
+		clone.startVelocity = startVelocity;
+		clone.speedAcc = speedAcc;
+		clone.speedDec = speedDec;
+		clone.speedMax = speedMax;
+		clone.speedMin = speedMin;
+		clone.angleSpeed = angleSpeed;
+		clone.boostForce = boostForce;
+		clone.boostDuration = boostDuration;
+	}
 
 	private void Start()
 	{
-		angle = startAngle;
-		velocity = angle * startVelocity;
-	}
-
-	private void FixedUpdate()
-	{
-		float dt = Time.fixedDeltaTime;
-
-		// boost
-
-		boostTime = boostTime - dt > 0 ? boostTime - dt : 0;
-
-		// clamp
-
-		if (lockSpeedMin && velocity.magnitude >= speedMin)
-			lockSpeedMin = false; // lock the speed to min when exceeded
-
-		float velocityBoost = boostForce.magnitude;
-		float velocityMax = boostTime == 0 ? speedMax : speedMax + velocityBoost;
-		float velocityMin = lockSpeedMin ? 0 : speedMin;
-
-		if (velocity.magnitude > velocityMax)
-			velocity = Vector3.ClampMagnitude(velocity, velocityMax); // clamp max
-
-		if (velocity.magnitude < velocityMin)
-			velocity = velocity.normalized * velocityMin; // clamp min
-
-		// apply
-
-		Debug.DrawLine(rb.position, rb.position + angle * velocity * dt * 100);
-
-		rb.rotation = angle;
-		rb.position += angle * velocity * dt;
-
-		// inertia
+		velocity = startVelocity;
 		
-		if (angleInertia != Quaternion.identity)
+		UpdatePosition(null, 0.2f); // apply start setup
+	}
+
+	public void UpdatePosition(ObstacleBody[] obstacles, float dt)
+	{
+		speedCap = speedMax;
+
+		if (boostTime > 0)
 		{
-			angleInertia = Quaternion.Slerp(angleInertia, Quaternion.identity, angleInertiaDec * dt);
-			angle *= angleInertia; // rotation inertia (on input)
+			speedCap += boostForce;
+			boostTime = boostTime - dt < 0 ? 0 : boostTime - dt;
+			// TODO : Mathf.Lerp(boostTime, 0, dt); ?
 		}
+
+		if (obstacles != null && obstacles.Length > 0)
+			AddGravity(gravity.GetGravity(obstacles));
+
+		Debug.DrawLine(playerBody.position, playerBody.position + velocity * dt * 100); // DEBUG
+
+		playerBody.position += velocity * dt;
+		playerBody.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg);
 	}
 
-	public void AddGravity(Vector3 gravity)
+	public void Accelerate(float intensity) // intensity > 0
 	{
-		Vector3 fromVelocity = (velocity != Vector3.zero) ? velocity : transform.right;
-		Vector3 targetVelocity = fromVelocity + gravity;
-		Vector3 clampedGravity = Vector3.RotateTowards(fromVelocity, targetVelocity, gravityAngleMax, targetVelocity.magnitude); // clamp
-
-		float degree = Vector3.Angle(fromVelocity, clampedGravity);
-		Quaternion rotation = Quaternion.Euler(new Vector3(0, 0, degree));
-
-		angle *= rotation;
+		velocity += getVelocity().normalized * speedAcc * intensity;
+		ClampMax(); // here to avoid unexpected velocity value in other methods
 	}
 
-	public void Accelerate(float intensity)
+	public void Decelerate(float intensity) // intensity < 0
 	{
-		velocity += transform.right * speedAcc * intensity;
-	}
-
-	public void Decelerate(float intensity)
-	{
-		Vector3 force = -transform.right * speedDec;
-
-		if (force.magnitude + speedMin > velocity.magnitude)
-			force = Vector3.zero; // no backward + avoid stop
-
-		velocity += force;
+		velocity += getVelocity().normalized * speedDec * intensity;
+		ClampMin(); // here to avoid unexpected velocity value in other methods
 	}
 
 	public void Turn(float intensity)
 	{
-		Quaternion rotation = Quaternion.Euler(new Vector3(0, 0, angleSpeed * -intensity));
-		angle *= rotation;
-		angleInertia *= rotation;
+		// ISSUE : when press →, wrong rotation center + add velocity (cf playerBody.rotation =...)
+		velocity = Quaternion.Euler(new Vector3(0, 0, angleSpeed * -intensity)) * getVelocity();
 	}
 
 	public void Boost()
 	{
-		velocity += boostForce; // TODO : increase/decrease with ease
+		velocity += getVelocity().normalized * boostForce;
+		ClampMax();
 		boostTime = boostDuration;
 	}
 
-	public void move(InputListener input)
+	public void AddGravity(Vector3 gravity)
+	{
+		velocity += gravity;
+	}
+
+	public void Move(InputListener input)
 	{
 		if (input.top > 0 && input.bot == 0)
 			Accelerate(input.top);
@@ -127,4 +106,23 @@ public class PlayerMovement : MonoBehaviour
 		if (input.space)
 			Boost();
 	}
+
+	protected void ClampMax()
+	{
+		if (velocity.magnitude > speedCap)
+			velocity = getVelocity().normalized * speedMax;
+	}
+
+	protected void ClampMin()
+	{
+		if (velocity.magnitude < speedMin)
+			velocity = getVelocity().normalized * speedMin;
+	}
+
+	private Vector3 getVelocity()
+	{
+		return velocity == Vector3.zero ? transform.right : velocity;
+	}
+
+	public Vector3 Velocity => velocity;
 }

@@ -5,17 +5,21 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
 	public InputController inputs;
-	public GravityController gravity;
 	public PlayerController player;
 	public ObstacleController obstacles;
 
-	void Start()
-    {
-        
-    }
+	private void FixedUpdate()
+	{
+		float dt = Time.fixedDeltaTime;
 
-    void Update()
-    {
-        
-    }
+		player.UpdatePosition(obstacles.GetObstacles(), dt);
+	}
+
+	void Update()
+	{
+		float dt = Time.deltaTime;
+
+		player.UpdateInputs();
+		player.UpdatePath(obstacles.GetObstacles(), dt);
+	}
 }

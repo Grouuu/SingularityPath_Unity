@@ -64,7 +64,7 @@
   <ItemGroup>
     <Compile Include="Assets\_other\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\GameController.cs" />
-    <Compile Include="Assets\GravityController.cs" />
+    <Compile Include="Assets\Gravity.cs" />
     <Compile Include="Assets\Imports\Cinemachine\Base\Runtime\Behaviours\CinemachineBlendListCamera.cs" />
     <Compile Include="Assets\Imports\Cinemachine\Base\Runtime\Behaviours\CinemachineBrain.cs" />
     <Compile Include="Assets\Imports\Cinemachine\Base\Runtime\Behaviours\CinemachineClearShot.cs" />
@@ -122,9 +122,11 @@
     <Compile Include="Assets\Imports\Grumble AMP\Scripts\grumbleSong.cs" />
     <Compile Include="Assets\InputController.cs" />
     <Compile Include="Assets\InputListener.cs" />
+    <Compile Include="Assets\ObstacleBody.cs" />
     <Compile Include="Assets\ObstacleController.cs" />
     <Compile Include="Assets\PlayerController.cs" />
     <Compile Include="Assets\PlayerPath.cs" />
+    <Compile Include="Assets\PlayerSimulator.cs" />
     <Compile Include="Assets\Scripts\PlayerMovement.cs" />
     <Compile Include="Assets\Scripts\SimpleCameraController.cs" />
     <None Include="Assets\Imports\Cinemachine\ReleaseNotes.txt" />

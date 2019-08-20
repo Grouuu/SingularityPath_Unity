@@ -7,8 +7,6 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerPath))]
 public class PlayerController : MonoBehaviour
 {
-	public Rigidbody player;
-
 	protected InputListener inputs;
 	protected PlayerMovement movement;
 	protected PlayerPath path;
@@ -22,17 +20,26 @@ public class PlayerController : MonoBehaviour
 
 	private void Start()
 	{
-		player.constraints =
+		/*player.constraints =
 			RigidbodyConstraints.FreezePositionZ |
 			RigidbodyConstraints.FreezeRotationX |
-			RigidbodyConstraints.FreezeRotationY |
-			RigidbodyConstraints.FreezeRotationZ;
+			RigidbodyConstraints.FreezeRotationY ;*/
 
-		movement.rb = player;
+		movement.ApplyConfig(path.Simulator);
 	}
 
-	private void Update()
+	public void UpdateInputs()
 	{
-		movement.move(inputs);
+		movement.Move(inputs);
+	}
+
+	public void UpdatePosition(ObstacleBody[] obstacles, float dt)
+	{
+		movement.UpdatePosition(obstacles, dt);
+	}
+
+	public void UpdatePath(ObstacleBody[] obstacles, float dt)
+	{
+		path.UpdatePath(movement.Velocity, obstacles, dt);
 	}
 }

@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class PlayerPath : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+	protected PlayerSimulator simulator = new PlayerSimulator();
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+	public void UpdatePath(Vector3 playerVelocity, ObstacleBody[] obstacles, float dt)
+	{
+		simulator.SetVelocity(playerVelocity);
+	}
+
+	public PlayerSimulator Simulator => simulator;
 }
