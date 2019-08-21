@@ -36,9 +36,14 @@ public class PlayerMovement : MonoBehaviour
 
 	private void Start()
 	{
+		playerBody.constraints =
+			RigidbodyConstraints.FreezePositionZ |
+			RigidbodyConstraints.FreezeRotationX |
+			RigidbodyConstraints.FreezeRotationY;
+
 		velocity = startVelocity;
 		
-		UpdatePosition(null, 0.2f); // apply start setup
+		UpdatePosition(null, 1f); // apply start setup
 	}
 
 	public void UpdatePosition(ObstacleBody[] obstacles, float dt)
@@ -48,7 +53,8 @@ public class PlayerMovement : MonoBehaviour
 		if (boostTime > 0)
 		{
 			speedCap += boostForce;
-			boostTime = boostTime - dt < 0 ? 0 : boostTime - dt;
+			//boostTime = boostTime - dt < 0 ? 0 : boostTime - dt;
+			boostTime = Mathf.Lerp(boostTime, 0, dt);
 			// TODO : Mathf.Lerp(boostTime, 0, dt); ?
 		}
 
@@ -57,8 +63,11 @@ public class PlayerMovement : MonoBehaviour
 
 		Debug.DrawLine(playerBody.position, playerBody.position + velocity * dt * 100); // DEBUG
 
-		playerBody.position += velocity * dt;
-		playerBody.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg);
+		if (velocity.magnitude > 0)
+		{
+			playerBody.position += velocity * dt;
+			playerBody.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg);
+		}
 	}
 
 	public void Accelerate(float intensity) // intensity > 0
@@ -75,8 +84,17 @@ public class PlayerMovement : MonoBehaviour
 
 	public void Turn(float intensity)
 	{
-		// ISSUE : when press →, wrong rotation center + add velocity (cf playerBody.rotation =...)
+		float magnitude = velocity.magnitude; // don't use transform.right
+
 		velocity = Quaternion.Euler(new Vector3(0, 0, angleSpeed * -intensity)) * getVelocity();
+
+		if (magnitude == 0)
+		{
+			// apply the rotation if the player don't move
+			playerBody.rotation *= Quaternion.Euler(0, 0, Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg);
+		}
+
+		velocity = velocity.normalized * magnitude; // avoid to speed up
 	}
 
 	public void Boost()

@@ -20,11 +20,6 @@ public class PlayerController : MonoBehaviour
 
 	private void Start()
 	{
-		/*player.constraints =
-			RigidbodyConstraints.FreezePositionZ |
-			RigidbodyConstraints.FreezeRotationX |
-			RigidbodyConstraints.FreezeRotationY ;*/
-
 		movement.ApplyConfig(path.Simulator);
 	}
 
