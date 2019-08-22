@@ -1501,8 +1501,8 @@ MonoBehaviour:
   speedMax: 5
   speedMin: 0.2
   angleSpeed: 1
-  boostForce: 1
-  boostDuration: 2
+  boostForce: 2
+  boostDuration: 1
 --- !u!114 &1978891737
 MonoBehaviour:
   m_ObjectHideFlags: 0
