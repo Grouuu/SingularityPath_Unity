@@ -9,14 +9,15 @@ public class PlayerMovement : MonoBehaviour
 	public float speedAcc = 0.5f;
 	public float speedDec = 0.1f;
 	public float speedMax = 10f;
-	[Range(0.2f, 5.0f)] public float speedMin = 0.2f; // if < 0.2, trigger === Vector3.zero
+	public float speedMin = 0.2f;
 	public float angleSpeed = 1f;
 	public float boostForce = 2f;
-	public float boostDuration = 1f;
+	public float boostDecDuration = 1f;
+
+	protected Gravity gravity = new Gravity();
 
 	protected Vector3 velocity;
 	protected Vector3 direction; // should not == Vector.zero
-	protected Gravity gravity = new Gravity();
 
 	private float boostTime = 0f;
 	private float speedCap;
@@ -35,7 +36,7 @@ public class PlayerMovement : MonoBehaviour
 		clone.speedMin = speedMin;
 		clone.angleSpeed = angleSpeed;
 		clone.boostForce = boostForce;
-		clone.boostDuration = boostDuration;
+		clone.boostDecDuration = boostDecDuration;
 	}
 
 	/**
@@ -56,27 +57,26 @@ public class PlayerMovement : MonoBehaviour
 	}
 
 	/**
+	 * Validate the parameter values (on editor)
+	 */
+	void OnValidate()
+	{
+		speedMin = Mathf.Max(speedMin, 0.2f); // if < 0.2, trigger === Vector3.zero
+	}
+
+	/**
 	 * Move and rotate the rigidbody with the gravity
 	 */
 	public void UpdatePosition(ObstacleBody[] obstacles, float dt)
 	{
-		if (boostTime > 0)
-		{
-			// TODO : change the boost system
-			// . keep space pressed : boost
-			// . release space : gradually slowdown to speedMax
-			// . add boost time / fuel quantity limit
-
-			speedCap = speedMax + boostForce;
-			boostTime = boostTime - dt < 0 ? 0 : boostTime - dt;
-		}
-		else
-		{
-			speedCap = Mathf.Lerp(speedCap, speedMax, dt * 10);
-		}
+		// Gravity
 
 		if (obstacles != null && obstacles.Length > 0)
 			AddExternalForce(gravity.GetGravity(obstacles));
+
+		// Move
+
+		ClampMax(); // apply speedCap decrease
 
 		Debug.DrawLine(playerBody.position, playerBody.position + velocity * dt * 100); // DEBUG
 
@@ -85,6 +85,15 @@ public class PlayerMovement : MonoBehaviour
 			playerBody.position += velocity * dt;
 			playerBody.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
 		}
+
+		// Boost
+
+		boostTime = boostTime - dt < 0 ? 0 : boostTime - dt;
+
+		if (boostTime == 0)
+			speedCap = speedMax;
+		else
+			speedCap = Mathf.Lerp(speedMax + boostForce, speedMax, 1 - boostTime / boostDecDuration); // decrease the speed cap if no more boost
 	}
 
 	/**
@@ -94,7 +103,7 @@ public class PlayerMovement : MonoBehaviour
 	public void Accelerate(float intensity) // intensity > 0
 	{
 		velocity += getVelocity().normalized * speedAcc * intensity;
-		ClampMax(); // here to avoid unexpected velocity value in other methods
+		ClampMax();
 	}
 
 	/**
@@ -103,10 +112,10 @@ public class PlayerMovement : MonoBehaviour
 	 */
 	public void Decelerate(float intensity) // intensity < 0
 	{
-		if(velocity.magnitude != 0)
+		if(velocity.magnitude > 0)
 		{
 			velocity += getVelocity().normalized * speedDec * intensity;
-			ClampMin(); // here to avoid unexpected velocity value in other methods
+			ClampMin();
 		}
 	}
 
@@ -115,13 +124,12 @@ public class PlayerMovement : MonoBehaviour
 	 */
 	public void Turn(float intensity)
 	{
-		float previousMagnitude = velocity.magnitude; // don't use transform.right
 		Quaternion rotation = Quaternion.Euler(new Vector3(0, 0, angleSpeed * -intensity));
+		float previousMagnitude = velocity.magnitude;
 
 		velocity = rotation * getVelocity();
-		direction = rotation * direction;
-
 		velocity = velocity.normalized * previousMagnitude; // avoid to speed up
+		direction = rotation * direction;
 	}
 
 	/**
@@ -130,9 +138,10 @@ public class PlayerMovement : MonoBehaviour
 	 */
 	public void Boost()
 	{
-		velocity += getVelocity().normalized * boostForce;
+		velocity += direction.normalized * boostForce;
+		speedCap = speedMax + boostForce;
+		boostTime = boostDecDuration;
 		ClampMax();
-		boostTime = boostDuration;
 	}
 
 	/**
@@ -140,6 +149,7 @@ public class PlayerMovement : MonoBehaviour
 	 */
 	public void AddExternalForce(Vector3 force)
 	{
+		// TODO : care if the force from back reduce < 0 the velocity
 		velocity += force;
 		direction = Quaternion.Euler(force) * direction;
 	}
@@ -153,6 +163,9 @@ public class PlayerMovement : MonoBehaviour
 	 */
 	public void Move(InputListener input)
 	{
+		if (input.space)
+			Boost(); // first apply the speed cap
+
 		if (input.top > 0 && input.bot == 0)
 			Accelerate(input.top);
 		if (input.bot < 0 && input.top == 0)
@@ -162,22 +175,19 @@ public class PlayerMovement : MonoBehaviour
 			Turn(input.right);
 		if (input.left < 0 && input.right == 0)
 			Turn(input.left);
-
-		if (input.space)
-			Boost();
 	}
 
 	/**
-	 * Limit the magnitude to the magnitude max
+	 * Limit the speed to the speed max
 	 */
 	protected void ClampMax()
 	{
 		if (velocity.magnitude > speedCap)
-			velocity = getVelocity().normalized * speedMax;
+			velocity = getVelocity().normalized * speedCap;
 	}
 
 	/**
-	 * Limit the magnitude to the magnitude min
+	 * Limit the speed to the speed min
 	 */
 	protected void ClampMin()
 	{
@@ -190,7 +200,7 @@ public class PlayerMovement : MonoBehaviour
 	 */
 	private Vector3 getVelocity()
 	{
-		return velocity == Vector3.zero ? direction : velocity;
+		return velocity.magnitude == 0 ? direction : velocity;
 	}
 
 	/** The velocity of the rigid body */
