@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
 	public Rigidbody playerBody;
+	public float mass = 10f;
+	public float gravityMax = 10f;
 	public Vector3 startVelocity = Vector3.zero;
 	public float speedAcc = 0.5f;
 	public float speedDec = 0.1f;
@@ -30,6 +32,8 @@ public class PlayerMovement : MonoBehaviour
 		// TODO : observable system to update simulator if the config changed
 		// or externalize the parameters and applies on all instances
 		clone.startVelocity = startVelocity;
+		clone.mass = mass;
+		clone.gravityMax = gravityMax;
 		clone.speedAcc = speedAcc;
 		clone.speedDec = speedDec;
 		clone.speedMax = speedMax;
@@ -62,17 +66,18 @@ public class PlayerMovement : MonoBehaviour
 	void OnValidate()
 	{
 		speedMin = Mathf.Max(speedMin, 0.2f); // if < 0.2, trigger === Vector3.zero
+		gravityMax = Mathf.Max(gravityMax, speedAcc + 0.1f); // must be > speedMax
 	}
 
 	/**
 	 * Move and rotate the rigidbody with the gravity
 	 */
-	public void UpdatePosition(ObstacleBody[] obstacles, float dt)
+	public void UpdatePosition(GravityBody[] obstacles, float dt)
 	{
 		// Gravity
 
 		if (obstacles != null && obstacles.Length > 0)
-			AddExternalForce(gravity.GetGravity(obstacles));
+			AddGravity(gravity.GetGravity(obstacles, playerBody.position, mass));
 
 		// Move
 
@@ -112,9 +117,11 @@ public class PlayerMovement : MonoBehaviour
 	 */
 	public void Decelerate(float intensity) // intensity < 0
 	{
-		if(velocity.magnitude > 0)
+		Vector3 decelerate = getVelocity().normalized * speedDec * intensity;
+
+		if (velocity.magnitude > decelerate.magnitude)
 		{
-			velocity += getVelocity().normalized * speedDec * intensity;
+			velocity += decelerate;
 			ClampMin();
 		}
 	}
@@ -145,16 +152,6 @@ public class PlayerMovement : MonoBehaviour
 	}
 
 	/**
-	 * Modify the velocity and the direction with external force (eg. gravity)
-	 */
-	public void AddExternalForce(Vector3 force)
-	{
-		// TODO : care if the force from back reduce < 0 the velocity
-		velocity += force;
-		direction = Quaternion.Euler(force) * direction;
-	}
-
-	/**
 	 * Use the current inputs to modifiy the velocity and the direction
 	 * Listen :
 	 * - left/right (rotation CCW/CW)
@@ -178,6 +175,15 @@ public class PlayerMovement : MonoBehaviour
 	}
 
 	/**
+	 * Modify the velocity and the direction with gravity
+	 */
+	protected void AddGravity(Vector3 gravity)
+	{
+		gravity = ClampGravity(gravity);
+		playerBody.position += gravity;
+	}
+
+	/**
 	 * Limit the speed to the speed max
 	 */
 	protected void ClampMax()
@@ -193,6 +199,14 @@ public class PlayerMovement : MonoBehaviour
 	{
 		if (velocity.magnitude < speedMin)
 			velocity = getVelocity().normalized * speedMin;
+	}
+
+	/**
+	 * Limit the gravity force
+	 */
+	protected Vector3 ClampGravity(Vector3 gravity)
+	{
+		return (gravity.magnitude > gravityMax) ? gravity.normalized * gravityMax : gravity;
 	}
 
 	/**

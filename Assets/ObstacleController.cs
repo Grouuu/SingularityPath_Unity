@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class ObstacleController : MonoBehaviour
 {
-	protected ObstacleBody[] obstacles;
-
-	public ObstacleBody[] GetObstacles()
+	public GravityBody[] GetObstacles()
 	{
+		// TEST
+		GravityBody[] obstacles = FindObjectsOfType<GravityBody>();
+
 		return obstacles;
 	}
 }

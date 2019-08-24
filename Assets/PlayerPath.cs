@@ -6,7 +6,7 @@ public class PlayerPath : MonoBehaviour
 {
 	protected PlayerSimulator simulator = new PlayerSimulator();
 
-	public void UpdatePath(Vector3 playerVelocity, ObstacleBody[] obstacles, float dt)
+	public void UpdatePath(Vector3 playerVelocity, GravityBody[] obstacles, float dt)
 	{
 		simulator.SetVelocity(playerVelocity);
 	}

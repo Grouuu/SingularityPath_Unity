@@ -28,12 +28,12 @@ public class PlayerController : MonoBehaviour
 		movement.Move(inputs);
 	}
 
-	public void UpdatePosition(ObstacleBody[] obstacles, float dt)
+	public void UpdatePosition(GravityBody[] obstacles, float dt)
 	{
 		movement.UpdatePosition(obstacles, dt);
 	}
 
-	public void UpdatePath(ObstacleBody[] obstacles, float dt)
+	public void UpdatePath(GravityBody[] obstacles, float dt)
 	{
 		path.UpdatePath(movement.Velocity, obstacles, dt);
 	}
