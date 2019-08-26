@@ -18,11 +18,6 @@ public class PlayerController : MonoBehaviour
 		path = GetComponent<PlayerPath>();
 	}
 
-	private void Start()
-	{
-		movement.ApplyConfig(path.Simulator);
-	}
-
 	public void UpdateInputs()
 	{
 		movement.Move(inputs);
@@ -35,6 +30,6 @@ public class PlayerController : MonoBehaviour
 
 	public void UpdatePath(GravityBody[] obstacles, float dt)
 	{
-		path.UpdatePath(movement.Velocity, obstacles, dt);
+		path.UpdatePath(movement, obstacles, dt);
 	}
 }

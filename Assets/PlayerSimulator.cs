@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class PlayerSimulator : PlayerMovement
 {
-	public void SetVelocity(Vector3 velocity)
+	public void SetSimulatorPosition(Vector3 position)
 	{
-		this.velocity = velocity;
+		playerBody.position = position;
 	}
 }
