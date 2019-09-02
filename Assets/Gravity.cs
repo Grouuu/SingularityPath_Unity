@@ -12,21 +12,20 @@ public class Gravity : MonoBehaviour
 	{
 		Vector3 gravity = Vector3.zero;
 
-		foreach (GravityBody body in obstacles)
+		if (obstacles != null && obstacles.Length > 0)
 		{
-			Vector3 dir = body.position - subjectPosition;
-			float dist = dir.magnitude;
-
-			if (dist > body.radius)
+			foreach (GravityBody body in obstacles)
 			{
-				float force = (1 / dist) * body.mass; // f(x) = 1/x * M
-				gravity += dir.normalized * force;
+				Vector3 dir = body.position - subjectPosition;
+				float dist = dir.magnitude;
+
+				if (dist > body.radius)
+				{
+					float force = (1 / dist) * body.mass; // f(x) = 1/x * M
+					gravity += dir.normalized * force;
+				}
 			}
 		}
-
-		// ISSUE : the gravity near the obstacles seems to repulse the player
-		// - the player velocity is not updated with the gravity effect
-		//   → can be a problem? The gravity force don't reduce it with time
 
 		return gravity;
 	}

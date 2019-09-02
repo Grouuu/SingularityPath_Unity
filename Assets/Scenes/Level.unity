@@ -1219,7 +1219,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66e8875363f74404aa03d30cd112bf38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mass: 5
+  mass: 50
   radius: 5
   position: {x: 35, y: 15, z: 0}
 --- !u!135 &1347886622
@@ -1512,7 +1512,6 @@ MonoBehaviour:
   angleSpeed: 3
   boostForce: 5
   boostDecDuration: 1
-  gravityMax: 0.6
 --- !u!114 &1978891737
 MonoBehaviour:
   m_ObjectHideFlags: 0
