@@ -12,6 +12,8 @@ public class PlayerMovement : MonoBehaviour
 	public float boostForce = 2f;
 	public float boostDecDuration = 1f;
 
+	public bool ignoreGravity = false;
+
 	private Gravity gravity = new Gravity(); // gravity simulator
 
 	private Vector3 velocity; // propulsion force
@@ -80,7 +82,8 @@ public class PlayerMovement : MonoBehaviour
 
 		// Rotation
 
-		playerBody.rotation = Quaternion.Lerp(playerBody.rotation, Quaternion.Euler(0, 0, Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg), dt);
+		if (velocity.magnitude > 0)
+			playerBody.rotation = Quaternion.Lerp(playerBody.rotation, Quaternion.Euler(0, 0, Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg), dt);
 
 		// Boost
 
@@ -96,7 +99,8 @@ public class PlayerMovement : MonoBehaviour
 	 */ 
 	public Vector3 UpdateVelocity(Vector3 vel, Vector3 pos, GravityBody[] obstacles, float dt)
 	{
-		vel += gravity.GetGravity(obstacles, pos) * dt; // add gravity
+		if (!ignoreGravity)
+			vel += gravity.GetGravity(obstacles, pos) * dt; // add gravity
 
 		if (vel.magnitude > speedCap)
 			vel = vel.normalized * speedCap; // clamp
@@ -122,12 +126,15 @@ public class PlayerMovement : MonoBehaviour
 	 */
 	private void Decelerate(float intensity) // intensity > 0
 	{
-		Vector3 force = -playerBody.transform.right * speedAcc * intensity;
+		Vector3 force = -velocity * speedDec * intensity;
 
-		if (force.magnitude + speedMin < velocity.magnitude) // avoid stop and backward
+		if (Vector3.Dot(playerBody.transform.right, velocity + force) > 0) // if the velocity is not opposite to the forward
+		{
 			velocity += force;
-		else
-			velocity = velocity.normalized * speedMin; // clamp
+
+			if (velocity.magnitude < speedMin)
+				velocity = velocity.normalized * speedMin; // clamp
+		}
 	}
 
 	/**
