@@ -156,7 +156,7 @@ public class PlayerMovement : MonoBehaviour
 	 */
 	private void Boost()
 	{
-		velocity += velocity.normalized * boostForce;
+		velocity += playerBody.transform.right * boostForce;
 		speedCap = speedMax + boostForce;
 		boostTime = boostDecDuration;
 	}
