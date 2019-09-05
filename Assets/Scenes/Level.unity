@@ -1506,12 +1506,13 @@ MonoBehaviour:
   playerBody: {fileID: 1960682734}
   startVelocity: {x: 0, y: 0, z: 0}
   speedAcc: 0.5
-  speedDec: 0.1
+  speedDec: 0.05
   speedMax: 10
   speedMin: 0.2
   angleSpeed: 3
   boostForce: 5
   boostDecDuration: 1
+  ignoreGravity: 0
 --- !u!114 &1978891737
 MonoBehaviour:
   m_ObjectHideFlags: 0

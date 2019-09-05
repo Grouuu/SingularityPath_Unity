@@ -19,7 +19,7 @@ public class Gravity : MonoBehaviour
 				Vector3 dir = body.position - subjectPosition;
 				float dist = dir.magnitude;
 
-				if (dist > body.radius)
+				if (dist > body.radius) // avoid if the player is crashed
 				{
 					float force = (1 / dist) * body.mass; // f(x) = 1/x * M
 					gravity += dir.normalized * force;
@@ -29,4 +29,5 @@ public class Gravity : MonoBehaviour
 
 		return gravity;
 	}
+
 }
