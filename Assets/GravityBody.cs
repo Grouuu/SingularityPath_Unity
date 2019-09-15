@@ -6,5 +6,11 @@ public class GravityBody : MonoBehaviour
 {
 	public float mass = 10f;
 	public float radius = 5f;
-	public Vector3 position = Vector3.zero;
+
+	[HideInInspector]
+	public Vector3 position;
+
+	private void Awake() {
+		position = transform.position;
+	}
 }

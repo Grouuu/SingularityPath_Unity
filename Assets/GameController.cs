@@ -4,11 +4,17 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-	public static int LAYER_HIDE = 9;
+	public static GameController instance;
 
 	public InputController inputs;
 	public PlayerController player;
 	public ObstacleController obstacles;
+
+	void Awake()
+	{
+		if (!instance)
+			instance = this;
+	}
 
 	void FixedUpdate()
 	{
@@ -24,5 +30,10 @@ public class GameController : MonoBehaviour
 		float dt = Time.deltaTime;
 
 		player.UpdateInputs();
+	}
+
+	public void PlayerHitObstacle(ContactPoint contact)
+	{
+		Debug.Log("CRASH!");
 	}
 }

@@ -6,9 +6,7 @@ public class ObstacleController : MonoBehaviour
 {
 	public GravityBody[] GetObstacles()
 	{
-		// TEST
 		GravityBody[] obstacles = FindObjectsOfType<GravityBody>();
-
 		return obstacles;
 	}
 }

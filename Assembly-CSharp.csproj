@@ -124,6 +124,7 @@
     <Compile Include="Assets\InputController.cs" />
     <Compile Include="Assets\InputListener.cs" />
     <Compile Include="Assets\ObstacleController.cs" />
+    <Compile Include="Assets\ObstacleSolid.cs" />
     <Compile Include="Assets\PlayerController.cs" />
     <Compile Include="Assets\PlayerPath.cs" />
     <Compile Include="Assets\PlayerSimulator.cs" />
